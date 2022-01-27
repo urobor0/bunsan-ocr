@@ -2,6 +2,7 @@ package server
 
 import (
 	"bunsan-ocr/internal/platform/server/handler/health"
+	ocr_job "bunsan-ocr/internal/platform/server/handler/ocr-job"
 	"bunsan-ocr/kit/bus/command"
 	"bunsan-ocr/kit/bus/query"
 	"context"
@@ -61,6 +62,7 @@ func (s *Server) Run(ctx context.Context) error {
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
+	s.engine.POST("/ocr-job", ocr_job.CreateOCRJobHandler())
 }
 
 func serverContext(ctx context.Context) context.Context {
