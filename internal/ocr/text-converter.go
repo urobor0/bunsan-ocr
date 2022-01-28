@@ -2,8 +2,8 @@ package ocr
 
 import (
 	"bufio"
+	"bunsan-ocr/kit/projectpath"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -127,10 +127,18 @@ func (ocr AccountNumberTxt) CheckSum() bool {
 	return sum%11 == 0
 }
 
-func TextConverter(filePath string) error {
+func TextConverter(filePath string, id JobID) error {
+	fileOutputPath := fmt.Sprintf("%s/attachments/%s-output.txt", projectpath.RootDir(), id.String())
+	fileOutput, err := os.Create(fileOutputPath)
+	if err != nil {
+		return err
+	}
+
+	defer fileOutput.Close()
+
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer file.Close()
 
@@ -141,8 +149,12 @@ func TextConverter(filePath string) error {
 		accountNumberSlice = append(accountNumberSlice, scanner.Text())
 
 		if i%linesPerNumber == 0 {
-			account := NewOcrAccountNumberTxt(accountNumberSlice)
-			fmt.Println(account.String())
+			account := NewOcrAccountNumberTxt(accountNumberSlice).String()
+			fmt.Println(account)
+			_, err := fileOutput.WriteString(fmt.Sprintf("%s\n", account))
+			if err != nil {
+				return err
+			}
 		}
 
 		if i%linesOfEachEntry == 0 {
@@ -155,7 +167,7 @@ func TextConverter(filePath string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	return nil

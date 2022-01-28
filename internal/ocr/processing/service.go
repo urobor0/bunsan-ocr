@@ -3,7 +3,6 @@ package processing
 import (
 	"bunsan-ocr/internal/ocr"
 	"bunsan-ocr/kit/bus/event"
-	"fmt"
 )
 
 type JobProcessorService struct {
@@ -19,6 +18,14 @@ func NewJobProcessorService(jobRepository ocr.JobRepository, eventBus event.Bus)
 }
 
 func (s JobProcessorService) Process(id, inputFilePath, inputFileContentType string, status int) error {
-	fmt.Println("Processing :D")
+	jobId, err := ocr.NewJobID(id)
+	if err != nil {
+		return err
+	}
+
+	if err := ocr.TextConverter(inputFilePath, jobId); err != nil {
+		return err
+	}
+
 	return nil
 }

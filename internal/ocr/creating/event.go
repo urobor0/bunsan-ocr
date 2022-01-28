@@ -26,7 +26,7 @@ func (p ProcessJobOnJobCreated) Handle(_ context.Context, evt event.Event) error
 		return errors.New("unexpected event")
 	}
 
-	return p.processingService.Process(jobCreatedEvt.ID(), jobCreatedEvt.FileInputPath(), jobCreatedEvt.FileInputContentType(), jobCreatedEvt.Status())
+	return p.processingService.Process(jobCreatedEvt.AggregateID(), jobCreatedEvt.FileInputPath(), jobCreatedEvt.FileInputContentType(), jobCreatedEvt.Status())
 }
 
 func (p ProcessJobOnJobCreated) Type() event.HandlerType {
