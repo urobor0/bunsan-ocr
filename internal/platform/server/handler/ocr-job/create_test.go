@@ -24,7 +24,7 @@ func TestCreateOCRJobHandler(t *testing.T) {
 	commandBus.On(
 		"Dispatch",
 		mock.Anything,
-		mock.AnythingOfType("creating.CourseCommand"),
+		mock.AnythingOfType("creating.JobCommand"),
 	).Return(nil)
 
 	fileName := "input-example.txt"
