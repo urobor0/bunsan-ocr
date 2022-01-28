@@ -46,10 +46,10 @@ func (j JobID) String() string {
 
 // Job is the data structure that represent a Job.
 type Job struct {
-	id                 JobID
-	fileInputPath      string
-	fileInputExtension string
-	status             JobStatus
+	id              JobID
+	fileInputPath   string
+	fileContentType string
+	status          JobStatus
 
 	events []event.Event
 }
@@ -71,10 +71,10 @@ func NewJob(id, fileInputPath, fileInputExtension string) (Job, error) {
 	}
 
 	job := Job{
-		id:                 idVO,
-		fileInputPath:      fileInputPath,
-		fileInputExtension: fileInputExtension,
-		status:             Created,
+		id:              idVO,
+		fileInputPath:   fileInputPath,
+		fileContentType: fileInputExtension,
+		status:          Created,
 	}
 
 	job.Record(NewJobCreatedEvent(id, fileInputPath, fileInputExtension, job.status.ToPrimitive()))
@@ -90,10 +90,10 @@ func UnmarshalJob(id, fileInputPath, fileInputExtension string, status int) (Job
 	}
 
 	job := Job{
-		id:                 idVO,
-		fileInputPath:      fileInputPath,
-		fileInputExtension: fileInputExtension,
-		status:             JobStatus(status),
+		id:              idVO,
+		fileInputPath:   fileInputPath,
+		fileContentType: fileInputExtension,
+		status:          JobStatus(status),
 	}
 
 	return job, nil
@@ -109,9 +109,9 @@ func (j Job) FileInputPath() string {
 	return j.fileInputPath
 }
 
-// FileInputExtension returns the file extension.
-func (j Job) FileInputExtension() string {
-	return j.fileInputExtension
+// FileContentType returns the file extension.
+func (j Job) FileContentType() string {
+	return j.fileContentType
 }
 
 // Status returns the job current status.
