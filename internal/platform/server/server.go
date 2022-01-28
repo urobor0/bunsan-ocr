@@ -62,7 +62,7 @@ func (s *Server) Run(ctx context.Context) error {
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/health", health.CheckHandler())
-	s.engine.POST("/ocr-job", ocr_job.CreateOCRJobHandler())
+	s.engine.POST("/ocr-job", ocr_job.CreateOCRJobHandler(s.commandBus))
 }
 
 func serverContext(ctx context.Context) context.Context {

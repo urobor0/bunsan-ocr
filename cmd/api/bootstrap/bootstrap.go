@@ -1,8 +1,10 @@
 package bootstrap
 
 import (
+	"bunsan-ocr/internal/ocr/creating"
 	"bunsan-ocr/internal/platform/bus/inmemory"
 	"bunsan-ocr/internal/platform/server"
+	storageInMemory "bunsan-ocr/internal/platform/storage/inmemory"
 	"context"
 	"github.com/kelseyhightower/envconfig"
 	"time"
@@ -18,7 +20,13 @@ func Run() error {
 	var (
 		commandBus = inmemory.NewCommandBus()
 		queryBus = inmemory.NewQueryBus()
+		eventBus = inmemory.NewEventBus()
 	)
+
+	jobRepository := storageInMemory.NewJobRepository()
+	creatingJobService := creating.NewJobService(jobRepository, eventBus)
+
+	commandBus.Register(creating.JobCommandType, creating.NewJobCommandHandler(creatingJobService))
 
 	ctx, srv := server.New(context.Background(), cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus, queryBus)
 	return srv.Run(ctx)

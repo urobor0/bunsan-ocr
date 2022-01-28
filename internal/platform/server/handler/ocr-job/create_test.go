@@ -1,11 +1,13 @@
 package ocr_job
 
 import (
+	"bunsan-ocr/kit/bus/command/commandmocks"
 	"bunsan-ocr/kit/projectpath"
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"io"
 	"mime/multipart"
@@ -18,11 +20,18 @@ import (
 var resourcesPath = fmt.Sprintf("%s/resources", projectpath.RootDir())
 
 func TestCreateOCRJobHandler(t *testing.T) {
+	commandBus := new(commandmocks.Bus)
+	commandBus.On(
+		"Dispatch",
+		mock.Anything,
+		mock.AnythingOfType("creating.CourseCommand"),
+	).Return(nil)
+
 	fileName := "input-example.txt"
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
-	r.POST("/ocr-job", CreateOCRJobHandler())
+	r.POST("/ocr-job", CreateOCRJobHandler(commandBus))
 
 	t.Run("given a valid request return 200", func(t *testing.T) {
 		bodyBuf := &bytes.Buffer{}

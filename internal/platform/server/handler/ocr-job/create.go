@@ -1,8 +1,12 @@
 package ocr_job
 
 import (
+	"bunsan-ocr/internal/ocr"
+	"bunsan-ocr/internal/ocr/creating"
+	"bunsan-ocr/kit/bus/command"
 	"bunsan-ocr/kit/identifier"
 	"bunsan-ocr/kit/projectpath"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -16,13 +20,13 @@ type CreateOCRJobRequest struct {
 	File *multipart.FileHeader `form:"file" binding:"required"`
 }
 
-func CreateOCRJobHandler() gin.HandlerFunc {
+func CreateOCRJobHandler(bus command.Bus) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var request CreateOCRJobRequest
 
 		jobId, err := identifier.New()
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": err.Error(),
 			})
 			return
@@ -60,15 +64,32 @@ func CreateOCRJobHandler() gin.HandlerFunc {
 			return
 		}
 
+		err = bus.Dispatch(ctx, creating.NewJobCommand(
+			jobId,
+			fileInputPath,
+			fileContentType,
+		))
+
+		if err != nil {
+			switch {
+			case errors.Is(err, ocr.ErrInvalidJobID):
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			default:
+				ctx.JSON(http.StatusInternalServerError, err.Error())
+				return
+			}
+		}
+
 		ctx.JSON(http.StatusAccepted, gin.H{
-			"input_path": fileInputPath,
+			"input_path":   fileInputPath,
 			"content_type": fileContentType,
-			"message":fmt.Sprintf("check the progress of your work at /ocr-job/%s", jobId),
+			"message":      fmt.Sprintf("check the progress of your work at /ocr-job/%s", jobId),
 		})
 	}
 }
 
-func getContentType(file multipart.File)  (string, error) {
+func getContentType(file multipart.File) (string, error) {
 	fileHeader := make([]byte, 512)
 
 	// Copy the headers into the FileHeader buffer
