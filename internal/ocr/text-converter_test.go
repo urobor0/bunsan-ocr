@@ -1,17 +1,12 @@
 package ocr
 
 import (
+	"bunsan-ocr/kit/projectpath"
 	"fmt"
-	"path/filepath"
-	"runtime"
 	"testing"
 )
 
-var (
-	_, b , _, _ = runtime.Caller(0)
-	basePath = filepath.Join(filepath.Dir(b), "../../")
-	resourcesPath = fmt.Sprintf("%s/resources", basePath)
-)
+var resourcesPath = fmt.Sprintf("%s/resources", projectpath.RootDir())
 
 func TestTextConverter(t *testing.T) {
 	type args struct {

@@ -1,6 +1,7 @@
 package ocr_job
 
 import (
+	"bunsan-ocr/kit/projectpath"
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -11,24 +12,18 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
-	"runtime"
 	"testing"
 )
 
-var (
-	_, b , _, _ = runtime.Caller(0)
-	basePath = filepath.Join(filepath.Dir(b), "../../../../../")
-	resourcesPath = fmt.Sprintf("%s/resources", basePath)
-)
+var resourcesPath = fmt.Sprintf("%s/resources", projectpath.RootDir())
 
 func TestCreateOCRJobHandler(t *testing.T) {
 	fileName := "input-example.txt"
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	
+
 	r.POST("/ocr-job", CreateOCRJobHandler())
-	
+
 	t.Run("given a valid request return 200", func(t *testing.T) {
 		bodyBuf := &bytes.Buffer{}
 		bodyWriter := multipart.NewWriter(bodyBuf)
@@ -57,7 +52,7 @@ func TestCreateOCRJobHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusAccepted, res.StatusCode)
 	})
-	
+
 	t.Run("given a invalid request return 400", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, "/ocr-job", nil)
 		require.NoError(t, err)
