@@ -61,7 +61,7 @@ type JobRepository interface {
 	Update(ctx context.Context, id Job) error
 }
 
-//go:generate mockery --case=snake --outpkg=storagempcks --output=../../platform/stprage/storagemocks --name=JobRepository
+//go:generate mockery --case=snake --outpkg=storagemocks --output=../platform/storage/storagemocks --name=JobRepository
 
 // NewJob creates a new job.
 func NewJob(id, fileInputPath, fileInputExtension string) (Job, error) {
